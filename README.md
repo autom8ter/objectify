@@ -69,6 +69,12 @@ func (t *Handler) Bash(cmd string) string
 func (t *Handler) ComparePasswordToHash(hashed string, password string) error
 ```
 
+#### func (*Handler) Debug
+
+```go
+func (t *Handler) Debug(msg string, key, val string)
+```
+
 #### func (*Handler) DebugErr
 
 ```go
@@ -79,6 +85,12 @@ func (t *Handler) DebugErr(err error, msg string)
 
 ```go
 func (t *Handler) DebugObject(obj interface{}, msg string)
+```
+
+#### func (*Handler) Dial
+
+```go
+func (t *Handler) Dial(address string) (net.Conn, error)
 ```
 
 #### func (*Handler) DotEnv
@@ -147,10 +159,34 @@ func (t *Handler) MarshalYAML(obj interface{}) []byte
 func (t *Handler) MultiError(err error, list ...error) error
 ```
 
+#### func (*Handler) MustDial
+
+```go
+func (t *Handler) MustDial(address string) net.Conn
+```
+
+#### func (*Handler) MustDialGRPC
+
+```go
+func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.ClientConn
+```
+
 #### func (*Handler) MustGetEnv
 
 ```go
 func (t *Handler) MustGetEnv(envKey string) string
+```
+
+#### func (*Handler) MustParseLang
+
+```go
+func (t *Handler) MustParseLang(msg string) language.Tag
+```
+
+#### func (*Handler) MustParseRegion
+
+```go
+func (t *Handler) MustParseRegion(msg string) language.Region
 ```
 
 #### func (*Handler) ParseFlags
@@ -159,10 +195,22 @@ func (t *Handler) MustGetEnv(envKey string) string
 func (t *Handler) ParseFlags()
 ```
 
+#### func (*Handler) ParseLang
+
+```go
+func (t *Handler) ParseLang(msg string) (language.Tag, error)
+```
+
 #### func (*Handler) ParsePFlags
 
 ```go
 func (t *Handler) ParsePFlags()
+```
+
+#### func (*Handler) ParseRegion
+
+```go
+func (t *Handler) ParseRegion(msg string) (language.Region, error)
 ```
 
 #### func (*Handler) Prompt
