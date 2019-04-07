@@ -69,10 +69,28 @@ func (t *Handler) Bash(cmd string) string
 func (t *Handler) ComparePasswordToHash(hashed string, password string) error
 ```
 
+#### func (*Handler) DebugErr
+
+```go
+func (t *Handler) DebugErr(err error, msg string)
+```
+
+#### func (*Handler) DebugObject
+
+```go
+func (t *Handler) DebugObject(obj interface{}, msg string)
+```
+
 #### func (*Handler) DotEnv
 
 ```go
 func (t *Handler) DotEnv()
+```
+
+#### func (*Handler) FatalErr
+
+```go
+func (t *Handler) FatalErr(err error, msg string)
 ```
 
 #### func (*Handler) GetEnv
@@ -163,6 +181,12 @@ func (t *Handler) Python3(cmd string) string
 
 ```go
 func (t *Handler) RandomToken(length int) []byte
+```
+
+#### func (*Handler) ReadAsCSV
+
+```go
+func (t *Handler) ReadAsCSV(val string) ([]string, error)
 ```
 
 #### func (*Handler) RegexFind
@@ -271,6 +295,12 @@ func (t *Handler) UnmarshalFromConfig(file string, obj interface{}) error
 
 ```go
 func (t *Handler) Validate(data interface{}) error
+```
+
+#### func (*Handler) WarnErr
+
+```go
+func (t *Handler) WarnErr(err error, msg string)
 ```
 
 #### func (*Handler) WrapErrf

@@ -7,6 +7,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
@@ -313,4 +314,30 @@ func (t *Handler) Request(req *http.Request) (*http.Response, error) {
 func (t *Handler) Replace(content string, replacements ...string) string {
 	rep := strings.NewReplacer(replacements...)
 	return rep.Replace(content)
+}
+
+
+func (t *Handler) DebugErr(err error, msg string) {
+	logger.Debug(msg, zap.Error(err))
+}
+
+func (t *Handler) FatalErr(err error, msg string) {
+	logger.Fatal(msg, zap.Error(err))
+}
+
+func (t *Handler) WarnErr(err error, msg string) {
+	logger.Warn(msg, zap.Error(err))
+}
+
+func (t *Handler) DebugObject(obj interface{}, msg string) {
+	logger.Debug( msg, zap.String("object", string(t.MarshalJSON(obj))))
+}
+
+func (t *Handler) ReadAsCSV(val string) ([]string, error) {
+	if val == "" {
+		return []string{}, nil
+	}
+	stringReader := strings.NewReader(val)
+	csvReader := csv.NewReader(stringReader)
+	return csvReader.Read()
 }
