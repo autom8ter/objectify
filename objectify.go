@@ -26,6 +26,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/text/language"
+	"google.golang.org/grpc"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/yaml.v2"
 	"hash/adler32"
@@ -33,6 +34,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -356,4 +358,24 @@ func (t *Handler) ParseRegion(msg string) (language.Region, error) {
 
 func (t *Handler) MustParseRegion(msg string) language.Region {
 	return language.MustParseRegion(msg)
+}
+
+func (t *Handler) Dial(address string) (net.Conn, error) {
+	return net.Dial("tcp", "")
+}
+
+func (t *Handler) MustDial(address string) net.Conn {
+	conn, err := net.Dial("tcp", "")
+	if err != nil {
+		panic(err.Error())
+	}
+	return conn
+}
+
+func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.ClientConn {
+	conn, err := grpc.Dial(address, opts...)
+	if err != nil {
+		panic(err.Error())
+	}
+	return conn
 }
