@@ -23,6 +23,7 @@ require (
 	go.uber.org/zap v1.9.1
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
+	golang.org/x/text v0.3.0
 	gopkg.in/go-playground/validator.v9 v9.28.0
 	gopkg.in/yaml.v2 v2.2.2
 )

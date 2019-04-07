@@ -25,6 +25,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/text/language"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/yaml.v2"
 	"hash/adler32"
@@ -316,7 +317,6 @@ func (t *Handler) Replace(content string, replacements ...string) string {
 	return rep.Replace(content)
 }
 
-
 func (t *Handler) DebugErr(err error, msg string) {
 	logger.Debug(msg, zap.Error(err))
 }
@@ -330,7 +330,7 @@ func (t *Handler) WarnErr(err error, msg string) {
 }
 
 func (t *Handler) DebugObject(obj interface{}, msg string) {
-	logger.Debug( msg, zap.String("object", string(t.MarshalJSON(obj))))
+	logger.Debug(msg, zap.String("object", string(t.MarshalJSON(obj))))
 }
 
 func (t *Handler) ReadAsCSV(val string) ([]string, error) {
@@ -340,4 +340,20 @@ func (t *Handler) ReadAsCSV(val string) ([]string, error) {
 	stringReader := strings.NewReader(val)
 	csvReader := csv.NewReader(stringReader)
 	return csvReader.Read()
+}
+
+func (t *Handler) ParseLang(msg string) (language.Tag, error) {
+	return language.Parse(msg)
+}
+
+func (t *Handler) MustParseLang(msg string) language.Tag {
+	return language.MustParse(msg)
+}
+
+func (t *Handler) ParseRegion(msg string) (language.Region, error) {
+	return language.ParseRegion(msg)
+}
+
+func (t *Handler) MustParseRegion(msg string) language.Region {
+	return language.MustParseRegion(msg)
 }
