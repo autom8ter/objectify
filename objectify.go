@@ -55,6 +55,10 @@ var logger *zap.Logger
 //Handler is an empty struct used to carry useful utility functions
 type Handler struct{}
 
+func New() *Handler {
+	return &Handler{}
+}
+
 //Function is a generic function that returns an error
 type Function func() error
 
