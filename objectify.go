@@ -323,6 +323,10 @@ func (t *Handler) DebugErr(err error, msg string) {
 	logger.Debug(msg, zap.Error(err))
 }
 
+func (t *Handler) Debug(msg string, key, val string) {
+	logger.Debug(msg, zap.String(key, val))
+}
+
 func (t *Handler) FatalErr(err error, msg string) {
 	logger.Fatal(msg, zap.Error(err))
 }
