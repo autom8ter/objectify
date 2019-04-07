@@ -21,6 +21,12 @@ type Handler struct{}
 
 Handler is an empty struct used to carry useful utility functions
 
+#### func  New
+
+```go
+func New() *Handler
+```
+
 #### func (*Handler) Adler32sum
 
 ```go
