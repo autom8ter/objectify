@@ -412,9 +412,8 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 }
 
 func (t *Handler) PanicIfNil(obj interface{}) {
-	s := structs.New(obj)
 	typ := reflect.TypeOf(obj)
-	if s.IsZero() {
-		t.Log().Fatal("nil object", zap.String("name", s.Name()), zap.String("package path", typ.PkgPath()))
+	if obj == nil {
+		t.Log().Fatal("nil object", zap.String("name", typ.Name()), zap.String("package path", typ.PkgPath()))
 	}
 }
