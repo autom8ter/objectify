@@ -81,12 +81,6 @@ func (t *Handler) Debug(msg string, key, val string)
 func (t *Handler) DebugErr(err error, msg string)
 ```
 
-#### func (*Handler) DebugObject
-
-```go
-func (t *Handler) DebugObject(obj interface{}, msg string)
-```
-
 #### func (*Handler) Dial
 
 ```go
@@ -199,6 +193,12 @@ func (t *Handler) MustParseRegion(msg string) language.Region
 
 ```go
 func (t *Handler) NewContext() context.Context
+```
+
+#### func (*Handler) PanicIfNil
+
+```go
+func (t *Handler) PanicIfNil(obj interface{})
 ```
 
 #### func (*Handler) ParseFlags

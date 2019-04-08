@@ -39,6 +39,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"reflect"
 	"regexp"
 	"strings"
 	"syscall"
@@ -338,10 +339,6 @@ func (t *Handler) WarnErr(err error, msg string) {
 	logger.Warn(msg, zap.Error(err))
 }
 
-func (t *Handler) DebugObject(obj interface{}, msg string) {
-	logger.Debug(msg, zap.String("object", string(t.MarshalJSON(obj))))
-}
-
 func (t *Handler) ReadAsCSV(val string) ([]string, error) {
 	if val == "" {
 		return []string{}, nil
@@ -412,4 +409,11 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 		// no-op
 	}
 	return nil
+}
+
+func (t *Handler) PanicIfNil(obj interface{}) {
+	typ := reflect.TypeOf(obj)
+	if obj == nil {
+		t.Log().Debug("nil object detected", zap.String("name", typ.Name()), zap.String("package path", typ.PkgPath()))
+	}
 }
