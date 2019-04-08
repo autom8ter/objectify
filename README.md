@@ -5,6 +5,13 @@
 
 ## Usage
 
+#### type ContextFunc
+
+```go
+type ContextFunc func(ctx context.Context) (context.Context, error)
+```
+
+
 #### type Function
 
 ```go
@@ -69,6 +76,12 @@ func (t *Handler) Bash(cmd string) string
 func (t *Handler) ComparePasswordToHash(hashed string, password string) error
 ```
 
+#### func (*Handler) ContextWith
+
+```go
+func (t *Handler) ContextWith(key string, obj interface{}) ContextFunc
+```
+
 #### func (*Handler) Debug
 
 ```go
@@ -102,7 +115,7 @@ func (t *Handler) FatalErr(err error, msg string)
 #### func (*Handler) FromContext
 
 ```go
-func (t *Handler) FromContext(ctx context.Context, key string) interface{}
+func (t *Handler) FromContext(key string, toMap map[string]interface{}) ContextFunc
 ```
 
 #### func (*Handler) GetEnv
@@ -331,12 +344,6 @@ func (t *Handler) Sha256sum(input string) string
 
 ```go
 func (t *Handler) Shell(cmd string) string
-```
-
-#### func (*Handler) ToContext
-
-```go
-func (t *Handler) ToContext(ctx context.Context, key string, val interface{}) context.Context
 ```
 
 #### func (*Handler) ToMap

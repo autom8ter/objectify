@@ -57,6 +57,8 @@ func init() {
 	}
 }
 
+type ContextFunc func(ctx context.Context) (context.Context, error)
+
 var validate *validator.Validate
 var logger *zap.Logger
 
@@ -384,16 +386,27 @@ func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.Cl
 	return conn
 }
 
-func (t *Handler) FromContext(ctx context.Context, key string) interface{} {
-	return ctx.Value(key)
-}
-
-func (t *Handler) ToContext(ctx context.Context, key string, val interface{}) context.Context {
-	return context.WithValue(ctx, key, val)
+func (t *Handler) FromContext(key string, toMap map[string]interface{}) ContextFunc {
+	return func(ctx context.Context) (context.Context, error) {
+		obj := ctx.Value("key")
+		if obj == nil {
+			return ctx, nil
+		}
+		for k, v := range t.ToMap(obj) {
+			toMap[k] = v
+		}
+		return ctx, nil
+	}
 }
 
 func (t *Handler) NewContext() context.Context {
 	return context.Background()
+}
+
+func (t *Handler) ContextWith(key string, obj interface{}) ContextFunc {
+	return func(ctx context.Context) (context.Context, error) {
+		return context.WithValue(ctx, key, obj), nil
+	}
 }
 
 func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
