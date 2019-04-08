@@ -38,8 +38,10 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"regexp"
 	"strings"
+	"syscall"
 	ttemplate "text/template"
 	"time"
 )
@@ -395,4 +397,18 @@ func (t *Handler) ToContext(ctx context.Context, key string, val interface{}) co
 
 func (t *Handler) NewContext() context.Context {
 	return context.Background()
+}
+
+func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
+	sdCh := make(chan os.Signal, 1)
+	defer close(sdCh)
+	defer signal.Stop(sdCh)
+	signal.Notify(sdCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case <-sdCh:
+		fn()
+	case <-ctx.Done():
+		// no-op
+	}
+	return nil
 }

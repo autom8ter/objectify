@@ -369,6 +369,12 @@ func (t *Handler) Validate(data interface{}) error
 func (t *Handler) WarnErr(err error, msg string)
 ```
 
+#### func (*Handler) WatchForShutdown
+
+```go
+func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error
+```
+
 #### func (*Handler) WrapErrf
 
 ```go
