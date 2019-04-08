@@ -406,6 +406,7 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 	signal.Notify(sdCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case <-sdCh:
+		fmt.Println("signal received---> shutting down...")
 		fn()
 	case <-ctx.Done():
 		// no-op
