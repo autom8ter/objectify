@@ -105,6 +105,12 @@ func (t *Handler) DotEnv()
 func (t *Handler) FatalErr(err error, msg string)
 ```
 
+#### func (*Handler) FromContext
+
+```go
+func (t *Handler) FromContext(ctx context.Context, key string) interface{}
+```
+
 #### func (*Handler) GetEnv
 
 ```go
@@ -187,6 +193,12 @@ func (t *Handler) MustParseLang(msg string) language.Tag
 
 ```go
 func (t *Handler) MustParseRegion(msg string) language.Region
+```
+
+#### func (*Handler) NewContext
+
+```go
+func (t *Handler) NewContext() context.Context
 ```
 
 #### func (*Handler) ParseFlags
@@ -319,6 +331,12 @@ func (t *Handler) Sha256sum(input string) string
 
 ```go
 func (t *Handler) Shell(cmd string) string
+```
+
+#### func (*Handler) ToContext
+
+```go
+func (t *Handler) ToContext(ctx context.Context, key string, val interface{}) context.Context
 ```
 
 #### func (*Handler) ToMap

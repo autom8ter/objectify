@@ -49,7 +49,8 @@ func init() {
 	validate = validator.New()
 	logger, err = zap.NewDevelopment()
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
+		os.Exit(2)
 	}
 }
 
@@ -382,4 +383,16 @@ func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.Cl
 		panic(err.Error())
 	}
 	return conn
+}
+
+func (t *Handler) FromContext(ctx context.Context, key string) interface{} {
+	return ctx.Value(key)
+}
+
+func (t *Handler) ToContext(ctx context.Context, key string, val interface{}) context.Context {
+	return context.WithValue(ctx, key, val)
+}
+
+func (t *Handler) NewContext() context.Context {
+	return context.Background()
 }
