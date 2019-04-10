@@ -41,6 +41,7 @@ import (
 	"os/signal"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"syscall"
 	ttemplate "text/template"
@@ -492,4 +493,9 @@ func (t *Handler) ToContext(ctx context.Context, key interface{}, val interface{
 
 func (t *Handler) FromContext(ctx context.Context, key string) interface{} {
 	return ctx.Value(key)
+}
+
+func (t *Handler) Sort(list []string) []string {
+	sort.Strings(list)
+	return list
 }
