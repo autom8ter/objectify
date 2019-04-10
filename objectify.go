@@ -499,3 +499,12 @@ func (t *Handler) Sort(list []string) []string {
 	sort.Strings(list)
 	return list
 }
+
+func (t *Handler) Contains(list []string, item string) bool {
+	for _, v := range list {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
