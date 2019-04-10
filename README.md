@@ -5,13 +5,6 @@
 
 ## Usage
 
-#### type ContextFunc
-
-```go
-type ContextFunc func(ctx context.Context) (context.Context, error)
-```
-
-
 #### type Function
 
 ```go
@@ -23,15 +16,28 @@ Function is a generic function that returns an error
 #### type Handler
 
 ```go
-type Handler struct{}
+type Handler struct {
+}
 ```
 
 Handler is an empty struct used to carry useful utility functions
 
+#### func  Default
+
+```go
+func Default() *Handler
+```
+
 #### func  New
 
 ```go
-func New() *Handler
+func New(opts ...Option) *Handler
+```
+
+#### func  NewWithContextKey
+
+```go
+func NewWithContextKey(ctx context.Context, key string, opts ...Option) *Handler
 ```
 
 #### func (*Handler) Adler32sum
@@ -76,22 +82,34 @@ func (t *Handler) Bash(cmd string) string
 func (t *Handler) ComparePasswordToHash(hashed string, password string) error
 ```
 
-#### func (*Handler) ContextWith
+#### func (*Handler) Context
 
 ```go
-func (t *Handler) ContextWith(key string, obj interface{}) ContextFunc
+func (t *Handler) Context() context.Context
 ```
 
 #### func (*Handler) Debug
 
 ```go
-func (t *Handler) Debug(msg string, key, val string)
+func (t *Handler) Debug(args ...interface{})
 ```
 
 #### func (*Handler) DebugErr
 
 ```go
-func (t *Handler) DebugErr(err error, msg string)
+func (t *Handler) DebugErr(err error, args ...interface{})
+```
+
+#### func (*Handler) Debugf
+
+```go
+func (t *Handler) Debugf(format string, args ...interface{})
+```
+
+#### func (*Handler) Debugln
+
+```go
+func (t *Handler) Debugln(args ...interface{})
 ```
 
 #### func (*Handler) Dial
@@ -106,22 +124,52 @@ func (t *Handler) Dial(address string) (net.Conn, error)
 func (t *Handler) DotEnv()
 ```
 
+#### func (*Handler) Entry
+
+```go
+func (t *Handler) Entry() *logrus.Entry
+```
+
+#### func (*Handler) Fatal
+
+```go
+func (t *Handler) Fatal(args ...interface{})
+```
+
 #### func (*Handler) FatalErr
 
 ```go
 func (t *Handler) FatalErr(err error, msg string)
 ```
 
+#### func (*Handler) Fatalf
+
+```go
+func (t *Handler) Fatalf(format string, args ...interface{})
+```
+
+#### func (*Handler) Fatalln
+
+```go
+func (t *Handler) Fatalln(args ...interface{})
+```
+
 #### func (*Handler) FromContext
 
 ```go
-func (t *Handler) FromContext(key string, toMap map[string]interface{}) ContextFunc
+func (t *Handler) FromContext(ctx context.Context, key string) interface{}
 ```
 
 #### func (*Handler) GetEnv
 
 ```go
 func (t *Handler) GetEnv(envKey, defaultValue string) string
+```
+
+#### func (*Handler) GetLogger
+
+```go
+func (t *Handler) GetLogger() *logrus.Logger
 ```
 
 #### func (*Handler) HashPassword
@@ -134,12 +182,6 @@ func (t *Handler) HashPassword(password string) (string, error)
 
 ```go
 func (t *Handler) HumanizeTime(tim time.Time) string
-```
-
-#### func (*Handler) Log
-
-```go
-func (t *Handler) Log() *zap.Logger
 ```
 
 #### func (*Handler) MarshalJSON
@@ -200,12 +242,6 @@ func (t *Handler) MustParseLang(msg string) language.Tag
 
 ```go
 func (t *Handler) MustParseRegion(msg string) language.Region
-```
-
-#### func (*Handler) NewContext
-
-```go
-func (t *Handler) NewContext() context.Context
 ```
 
 #### func (*Handler) PanicIfNil
@@ -316,6 +352,12 @@ func (t *Handler) RenderTXT(text string, obj interface{}, w io.Writer) error
 func (t *Handler) Replace(content string, replacements ...string) string
 ```
 
+#### func (*Handler) ReplaceEntry
+
+```go
+func (t *Handler) ReplaceEntry(entry *logrus.Entry)
+```
+
 #### func (*Handler) Request
 
 ```go
@@ -346,6 +388,18 @@ func (t *Handler) Sha256sum(input string) string
 func (t *Handler) Shell(cmd string) string
 ```
 
+#### func (*Handler) ToAnnotations
+
+```go
+func (t *Handler) ToAnnotations(obj interface{}) map[string]string
+```
+
+#### func (*Handler) ToContext
+
+```go
+func (t *Handler) ToContext(ctx context.Context, key interface{}, val interface{}) context.Context
+```
+
 #### func (*Handler) ToMap
 
 ```go
@@ -370,10 +424,28 @@ func (t *Handler) UnmarshalFromConfig(file string, obj interface{}) error
 func (t *Handler) Validate(data interface{}) error
 ```
 
+#### func (*Handler) Warn
+
+```go
+func (t *Handler) Warn(args ...interface{})
+```
+
 #### func (*Handler) WarnErr
 
 ```go
 func (t *Handler) WarnErr(err error, msg string)
+```
+
+#### func (*Handler) Warnf
+
+```go
+func (t *Handler) Warnf(format string, args ...interface{})
+```
+
+#### func (*Handler) Warnln
+
+```go
+func (t *Handler) Warnln(args ...interface{})
 ```
 
 #### func (*Handler) WatchForShutdown
@@ -382,8 +454,93 @@ func (t *Handler) WarnErr(err error, msg string)
 func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error
 ```
 
+#### func (*Handler) WrapErr
+
+```go
+func (t *Handler) WrapErr(err error, msg string) error
+```
+
 #### func (*Handler) WrapErrf
 
 ```go
 func (t *Handler) WrapErrf(err error, format, msg string) error
+```
+
+#### type Option
+
+```go
+type Option func(h *logrus.Logger) *logrus.Logger
+```
+
+
+#### func  Noop
+
+```go
+func Noop() Option
+```
+
+#### func  WithContext
+
+```go
+func WithContext(ctx context.Context) Option
+```
+
+#### func  WithDebugLevel
+
+```go
+func WithDebugLevel() Option
+```
+
+#### func  WithError
+
+```go
+func WithError(err error) Option
+```
+
+#### func  WithErrorLevel
+
+```go
+func WithErrorLevel() Option
+```
+
+#### func  WithFatalLevel
+
+```go
+func WithFatalLevel() Option
+```
+
+#### func  WithInfoLevel
+
+```go
+func WithInfoLevel() Option
+```
+
+#### func  WithJSONFormatter
+
+```go
+func WithJSONFormatter() Option
+```
+
+#### func  WithLevelFromEnv
+
+```go
+func WithLevelFromEnv(key string) Option
+```
+
+#### func  WithTextFormatter
+
+```go
+func WithTextFormatter(color bool) Option
+```
+
+#### func  WithWarnLevel
+
+```go
+func WithWarnLevel() Option
+```
+
+#### func  WithWriter
+
+```go
+func WithWriter(w io.Writer) Option
 ```
