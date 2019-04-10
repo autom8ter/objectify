@@ -500,11 +500,60 @@ func (t *Handler) Sort(list []string) []string {
 	return list
 }
 
-func (t *Handler) Contains(list []string, item string) bool {
-	for _, v := range list {
-		if v == item {
-			return true
+// Index returns the first index of the target string t, or -1 if no match is found.
+func (h *Handler) Index(vs []string, t string) int {
+	for i, v := range vs {
+		if v == t {
+			return i
 		}
 	}
-	return false
+	return -1
+}
+
+//Contains returns true if the target string t is in the slice.
+func (h *Handler) Contains(vs []string, t string) bool {
+	return h.Index(vs, t) >= 0
+}
+
+//Filter returns a new slice containing all strings in the slice that satisfy the predicate f.
+func (h *Handler) Filter(vs []string, f func(string) bool) []string {
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func (h *Handler) ModifyString(vs []string, f func(string) string) []string {
+	vsm := make([]string, len(vs))
+	for i, v := range vs {
+		vsm[i] = f(v)
+	}
+	return vsm
+}
+
+func (h *Handler) Callbacks(obj interface{}, callbacks ...CallbackFunc) error {
+	for _, c := range callbacks {
+		if err := c(obj)(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (h *Handler) Callback(obj interface{}, f CallbackFunc) error {
+	return f(obj)()
+}
+
+type CallbackFunc func(interface{}) func() error
+
+// typeIs returns true if the src is the type named in target.
+func (h *Handler) TypeSafe(target string, src interface{}) bool {
+	return target == typeOf(src)
+}
+
+func typeOf(src interface{}) string {
+	return fmt.Sprintf("%T", src)
 }

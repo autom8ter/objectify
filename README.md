@@ -82,6 +82,13 @@ func (t *Handler) Bash(cmd string) string
 func (t *Handler) ComparePasswordToHash(hashed string, password string) error
 ```
 
+#### func (*Handler) Contains
+
+```go
+func (h *Handler) Contains(vs []string, t string) bool
+```
+Contains returns true if the target string t is in the slice.
+
 #### func (*Handler) Context
 
 ```go
@@ -154,6 +161,14 @@ func (t *Handler) Fatalf(format string, args ...interface{})
 func (t *Handler) Fatalln(args ...interface{})
 ```
 
+#### func (*Handler) Filter
+
+```go
+func (h *Handler) Filter(vs []string, f func(string) bool) []string
+```
+Filter returns a new slice containing all strings in the slice that satisfy the
+predicate f.
+
 #### func (*Handler) FromContext
 
 ```go
@@ -184,6 +199,14 @@ func (t *Handler) HashPassword(password string) (string, error)
 func (t *Handler) HumanizeTime(tim time.Time) string
 ```
 
+#### func (*Handler) Index
+
+```go
+func (h *Handler) Index(vs []string, t string) int
+```
+Index returns the first index of the target string t, or -1 if no match is
+found.
+
 #### func (*Handler) MarshalJSON
 
 ```go
@@ -206,6 +229,12 @@ func (t *Handler) MarshalXML(obj interface{}) []byte
 
 ```go
 func (t *Handler) MarshalYAML(obj interface{}) []byte
+```
+
+#### func (*Handler) ModifyString
+
+```go
+func (h *Handler) ModifyString(vs []string, f func(string) string) []string
 ```
 
 #### func (*Handler) MultiError
@@ -386,6 +415,12 @@ func (t *Handler) Sha256sum(input string) string
 
 ```go
 func (t *Handler) Shell(cmd string) string
+```
+
+#### func (*Handler) Sort
+
+```go
+func (t *Handler) Sort(list []string) []string
 ```
 
 #### func (*Handler) ToAnnotations
