@@ -549,7 +549,7 @@ func (h *Handler) Callback(obj interface{}, f CallbackFunc) error {
 
 type CallbackFunc func(interface{}) func() error
 
-// typeIs returns true if the src is the type named in target.
+// TypeSafe returns true if the src is the type named in target.
 func (h *Handler) TypeSafe(target string, src interface{}) bool {
 	return target == typeOf(src)
 }
