@@ -21,8 +21,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/text/language"
@@ -48,25 +48,45 @@ import (
 )
 
 func init() {
-	var err error
 	validate = validator.New()
-	logger, err = zap.NewDevelopment()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(2)
+	logger = logrus.New()
+}
+
+type Option func(h *logrus.Logger) *logrus.Logger
+
+var validate *validator.Validate
+var logger *logrus.Logger
+
+//Handler is an empty struct used to carry useful utility functions
+type Handler struct {
+	logger *logrus.Entry
+}
+
+func New(opts ...Option) *Handler {
+	for _, o := range opts {
+		logger = o(logger)
+	}
+	return &Handler{
+		logger: logrus.NewEntry(logger),
 	}
 }
 
-type ContextFunc func(ctx context.Context) (context.Context, error)
-
-var validate *validator.Validate
-var logger *zap.Logger
-
-//Handler is an empty struct used to carry useful utility functions
-type Handler struct{}
-
-func New() *Handler {
-	return &Handler{}
+func Default() *Handler {
+	logger.Formatter = &logrus.JSONFormatter{PrettyPrint: true}
+	logger.Out = os.Stdout
+	logger.Level = logrus.DebugLevel
+	e := logrus.NewEntry(logger)
+	return &Handler{
+		logger: e,
+	}
+}
+func NewWithContextKey(ctx context.Context, key string, opts ...Option) *Handler {
+	for _, o := range opts {
+		logger = o(logger)
+	}
+	return &Handler{
+		logger: logrus.NewEntry(logger),
+	}
 }
 
 //Function is a generic function that returns an error
@@ -75,6 +95,14 @@ type Function func() error
 func (t *Handler) ToMap(obj interface{}) map[string]interface{} {
 	struc := structs.New(obj)
 	return struc.Map()
+}
+
+func (t *Handler) ToAnnotations(obj interface{}) map[string]string {
+	rtrn := make(map[string]string)
+	for k, v := range t.ToMap(obj) {
+		rtrn[k] = string(t.MarshalJSON(v))
+	}
+	return rtrn
 }
 
 func (t *Handler) MarshalProto(msg proto.Message) []byte {
@@ -111,7 +139,7 @@ func (t *Handler) GetEnv(envKey, defaultValue string) string {
 		val = defaultValue
 	}
 	if val == "" {
-		log.Fatalf("%q should be set", envKey)
+		t.Fatalf("%q should be set", envKey)
 	}
 	return val
 }
@@ -146,6 +174,7 @@ func (t *Handler) RenderTXT(text string, obj interface{}, w io.Writer) error {
 }
 
 func (t *Handler) Validate(data interface{}) error {
+	t.PanicIfNil(data)
 	return validate.Struct(data)
 }
 
@@ -293,10 +322,6 @@ func (t *Handler) DotEnv() {
 	}
 }
 
-func (t *Handler) WrapErrf(err error, format, msg string) error {
-	return errors.Wrapf(err, format, msg)
-}
-
 func (t *Handler) HumanizeTime(tim time.Time) string {
 	return humanize.Time(tim)
 }
@@ -305,15 +330,16 @@ func (t *Handler) MultiError(err error, list ...error) error {
 	return multierror.Append(err, list...)
 }
 
-func (t *Handler) Log() *zap.Logger {
-	return logger
-}
 func (t *Handler) ParsePFlags() {
 	pflag.Parse()
 }
 
 func (t *Handler) ParseFlags() {
 	flag.Parse()
+}
+
+func (t *Handler) GetLogger() *logrus.Logger {
+	return logger
 }
 
 func (t *Handler) Request(req *http.Request) (*http.Response, error) {
@@ -323,22 +349,6 @@ func (t *Handler) Request(req *http.Request) (*http.Response, error) {
 func (t *Handler) Replace(content string, replacements ...string) string {
 	rep := strings.NewReplacer(replacements...)
 	return rep.Replace(content)
-}
-
-func (t *Handler) DebugErr(err error, msg string) {
-	logger.Debug(msg, zap.Error(err))
-}
-
-func (t *Handler) Debug(msg string, key, val string) {
-	logger.Debug(msg, zap.String(key, val))
-}
-
-func (t *Handler) FatalErr(err error, msg string) {
-	logger.Fatal(msg, zap.Error(err))
-}
-
-func (t *Handler) WarnErr(err error, msg string) {
-	logger.Warn(msg, zap.Error(err))
 }
 
 func (t *Handler) ReadAsCSV(val string) ([]string, error) {
@@ -367,11 +377,11 @@ func (t *Handler) MustParseRegion(msg string) language.Region {
 }
 
 func (t *Handler) Dial(address string) (net.Conn, error) {
-	return net.Dial("tcp", "")
+	return net.Dial("tcp", address)
 }
 
 func (t *Handler) MustDial(address string) net.Conn {
-	conn, err := net.Dial("tcp", "")
+	conn, err := t.Dial(address)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -384,29 +394,6 @@ func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.Cl
 		panic(err.Error())
 	}
 	return conn
-}
-
-func (t *Handler) FromContext(key string, toMap map[string]interface{}) ContextFunc {
-	return func(ctx context.Context) (context.Context, error) {
-		obj := ctx.Value("key")
-		if obj == nil {
-			return ctx, nil
-		}
-		for k, v := range t.ToMap(obj) {
-			toMap[k] = v
-		}
-		return ctx, nil
-	}
-}
-
-func (t *Handler) NewContext() context.Context {
-	return context.Background()
-}
-
-func (t *Handler) ContextWith(key string, obj interface{}) ContextFunc {
-	return func(ctx context.Context) (context.Context, error) {
-		return context.WithValue(ctx, key, obj), nil
-	}
 }
 
 func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
@@ -427,6 +414,82 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 func (t *Handler) PanicIfNil(obj interface{}) {
 	typ := reflect.TypeOf(obj)
 	if obj == nil {
-		t.Log().Fatal("nil object", zap.String("name", typ.Name()), zap.String("package path", typ.PkgPath()))
+		panic(fmt.Sprintf("nil object name: %s path: %s", typ.Name(), typ.PkgPath()))
 	}
+}
+
+func (t *Handler) WrapErrf(err error, format, msg string) error {
+	return errors.Wrapf(err, format, msg)
+}
+
+func (t *Handler) WrapErr(err error, msg string) error {
+	return errors.Wrap(err, msg)
+}
+
+func (t *Handler) Warn(args ...interface{}) {
+	t.logger.Warn(args...)
+}
+
+func (t *Handler) Warnln(args ...interface{}) {
+	t.logger.Warnln(args...)
+}
+
+func (t *Handler) Warnf(format string, args ...interface{}) {
+	t.logger.Warnf(format, args...)
+}
+
+func (t *Handler) Fatal(args ...interface{}) {
+	t.logger.Fatal(args...)
+}
+
+func (t *Handler) Fatalln(args ...interface{}) {
+	t.logger.Fatalln(args...)
+}
+
+func (t *Handler) Fatalf(format string, args ...interface{}) {
+	t.logger.Fatalf(format, args...)
+}
+
+func (t *Handler) DebugErr(err error, args ...interface{}) {
+	t.logger.Debug(err.Error(), args)
+}
+
+func (t *Handler) Debug(args ...interface{}) {
+	t.logger.Debug(args...)
+}
+
+func (t *Handler) Debugln(args ...interface{}) {
+	t.logger.Debugln(args...)
+}
+
+func (t *Handler) Debugf(format string, args ...interface{}) {
+	t.logger.Fatalf(format, args...)
+}
+
+func (t *Handler) FatalErr(err error, msg string) {
+	t.logger.Fatal(msg, err.Error())
+}
+
+func (t *Handler) WarnErr(err error, msg string) {
+	t.logger.Warn(msg, err.Error())
+}
+
+func (t *Handler) Entry() *logrus.Entry {
+	return t.logger
+}
+
+func (t *Handler) ReplaceEntry(entry *logrus.Entry) {
+	t.logger = entry
+}
+
+func (t *Handler) Context() context.Context {
+	return context.TODO()
+}
+
+func (t *Handler) ToContext(ctx context.Context, key interface{}, val interface{}) context.Context {
+	return context.WithValue(ctx, key, val)
+}
+
+func (t *Handler) FromContext(ctx context.Context, key string) interface{} {
+	return ctx.Value(key)
 }
