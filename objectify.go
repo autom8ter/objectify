@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/rand"
+	"github.com/spf13/cobra"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
@@ -325,6 +326,21 @@ func (t *Handler) DotEnv() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
+
+func (t *Handler)  RootCmd(name, description string, fn func() error) *cobra.Command {
+	c := &cobra.Command{
+		Use:  name,
+		Long: description,
+	}
+	if fn != nil {
+		c.Run = func(cmd *cobra.Command, args []string) {
+			if err := fn(); err != nil {
+				Util.Fatalln(err.Error())
+			}
+		}
+	}
+	return c
 }
 
 func (t *Handler) HumanizeTime(tim time.Time) string {
