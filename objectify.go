@@ -81,14 +81,6 @@ func Default() *Handler {
 		logger: e,
 	}
 }
-func NewWithContextKey(ctx context.Context, key string, opts ...Option) *Handler {
-	for _, o := range opts {
-		logger = o(logger)
-	}
-	return &Handler{
-		logger: logrus.NewEntry(logger),
-	}
-}
 
 //Function is a generic function that returns an error
 type Function func() error
@@ -114,6 +106,18 @@ func (t *Handler) MarshalProto(msg proto.Message) []byte {
 func (t *Handler) MarshalJSON(v interface{}) []byte {
 	output, _ := json.MarshalIndent(v, "", "  ")
 	return output
+}
+
+func (t *Handler) Attributes(obj interface{})map[string]string {
+	m := t.ToMap(obj)
+	newm := make(map[string]string)
+	for k,v := range m {
+		newm[k]=string(t.MarshalJSON(v))
+	}
+	m["type"] =reflect.TypeOf(obj).String()
+	m["value"] =reflect.ValueOf(obj).String()
+	m["kind"] =reflect.TypeOf(obj).Kind().String()
+	return newm
 }
 
 func (t *Handler) UnmarshalFromConfig(file string, obj interface{}) error {
