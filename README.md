@@ -5,6 +5,13 @@
 
 ## Usage
 
+#### type CallbackFunc
+
+```go
+type CallbackFunc func(interface{}) func() error
+```
+
+
 #### type Function
 
 ```go
@@ -34,16 +41,16 @@ func Default() *Handler
 func New(opts ...Option) *Handler
 ```
 
-#### func  NewWithContextKey
-
-```go
-func NewWithContextKey(ctx context.Context, key string, opts ...Option) *Handler
-```
-
 #### func (*Handler) Adler32sum
 
 ```go
 func (t *Handler) Adler32sum(input string) string
+```
+
+#### func (*Handler) Attributes
+
+```go
+func (t *Handler) Attributes(obj interface{}) map[string]string
 ```
 
 #### func (*Handler) Base64Decode
@@ -74,6 +81,18 @@ func (t *Handler) Base64EncodeRaw(str []byte) string
 
 ```go
 func (t *Handler) Bash(cmd string) string
+```
+
+#### func (*Handler) Callback
+
+```go
+func (h *Handler) Callback(obj interface{}, f CallbackFunc) error
+```
+
+#### func (*Handler) Callbacks
+
+```go
+func (h *Handler) Callbacks(obj interface{}, callbacks ...CallbackFunc) error
 ```
 
 #### func (*Handler) ComparePasswordToHash
@@ -393,6 +412,12 @@ func (t *Handler) ReplaceEntry(entry *logrus.Entry)
 func (t *Handler) Request(req *http.Request) (*http.Response, error)
 ```
 
+#### func (*Handler) RootCmd
+
+```go
+func (t *Handler) RootCmd(name, description string, fn func() error) *cobra.Command
+```
+
 #### func (*Handler) Run
 
 ```go
@@ -440,6 +465,13 @@ func (t *Handler) ToContext(ctx context.Context, key interface{}, val interface{
 ```go
 func (t *Handler) ToMap(obj interface{}) map[string]interface{}
 ```
+
+#### func (*Handler) TypeSafe
+
+```go
+func (h *Handler) TypeSafe(target string, src interface{}) bool
+```
+TypeSafe returns true if the src is the type named in target.
 
 #### func (*Handler) UUID
 

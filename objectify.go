@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"crypto/rand"
-	"github.com/spf13/cobra"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
@@ -23,6 +22,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
@@ -109,15 +109,15 @@ func (t *Handler) MarshalJSON(v interface{}) []byte {
 	return output
 }
 
-func (t *Handler) Attributes(obj interface{})map[string]string {
+func (t *Handler) Attributes(obj interface{}) map[string]string {
 	m := t.ToMap(obj)
 	newm := make(map[string]string)
-	for k,v := range m {
-		newm[k]=string(t.MarshalJSON(v))
+	for k, v := range m {
+		newm[k] = string(t.MarshalJSON(v))
 	}
-	m["type"] =reflect.TypeOf(obj).String()
-	m["value"] =reflect.ValueOf(obj).String()
-	m["kind"] =reflect.TypeOf(obj).Kind().String()
+	m["type"] = reflect.TypeOf(obj).String()
+	m["value"] = reflect.ValueOf(obj).String()
+	m["kind"] = reflect.TypeOf(obj).Kind().String()
 	return newm
 }
 
@@ -328,7 +328,7 @@ func (t *Handler) DotEnv() {
 	}
 }
 
-func (t *Handler)  RootCmd(name, description string, fn func() error) *cobra.Command {
+func (t *Handler) RootCmd(name, description string, fn func() error) *cobra.Command {
 	c := &cobra.Command{
 		Use:  name,
 		Long: description,
@@ -336,7 +336,7 @@ func (t *Handler)  RootCmd(name, description string, fn func() error) *cobra.Com
 	if fn != nil {
 		c.Run = func(cmd *cobra.Command, args []string) {
 			if err := fn(); err != nil {
-				Util.Fatalln(err.Error())
+				t.Fatalln(err.Error())
 			}
 		}
 	}
