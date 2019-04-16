@@ -19,7 +19,7 @@ var util = objectify.New(
 )
 
 func TestNew(t *testing.T) {
-	util.Warnln("hello", "world")
-	util.Warnln("greeting", util.FromContext(ctx, "greeting"))
+	util.Entry().Warnln("hello", "world")
+	util.Entry().Warnln("greeting", util.FromContext(ctx, "greeting"))
 	fmt.Println(buffer.String())
 }

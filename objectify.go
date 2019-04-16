@@ -21,7 +21,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/text/language"
 	"gopkg.in/go-playground/validator.v9"
@@ -129,9 +128,6 @@ func (t *Handler) GetEnv(envKey, defaultValue string) string {
 	val := os.Getenv(envKey)
 	if val == "" {
 		val = defaultValue
-	}
-	if val == "" {
-		t.Fatalf("%q should be set", envKey)
 	}
 	return val
 }
@@ -302,23 +298,8 @@ func (t *Handler) RandomToken(length int) []byte {
 func (t *Handler) DotEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		t.Fatalln("Error loading .env file")
+		t.Entry().Debugln("Error loading .env file")
 	}
-}
-
-func (t *Handler) RootCmd(name, description string, fn func() error) *cobra.Command {
-	c := &cobra.Command{
-		Use:  name,
-		Long: description,
-	}
-	if fn != nil {
-		c.Run = func(cmd *cobra.Command, args []string) {
-			if err := fn(); err != nil {
-				t.Fatalln(err.Error())
-			}
-		}
-	}
-	return c
 }
 
 func (t *Handler) HumanizeTime(tim time.Time) string {
@@ -390,9 +371,10 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 	signal.Notify(sdCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case <-sdCh:
-		e.Debug("signal received shutting down]", "time", e.HumanizeTime(time.Now()))
+		e.Entry().Debugln("signal received shutting down", e.HumanizeTime(time.Now()))
 		fn()
 	case <-ctx.Done():
+		e.Entry().Debugln("context done")
 		// no-op
 	}
 	return nil
@@ -411,54 +393,6 @@ func (t *Handler) WrapErrf(err error, format string, args ...interface{}) error 
 
 func (t *Handler) WrapErr(err error, msg string) error {
 	return errors.Wrap(err, msg)
-}
-
-func (t *Handler) Warn(args ...interface{}) {
-	t.logger.Warn(args...)
-}
-
-func (t *Handler) Warnln(args ...interface{}) {
-	t.logger.Warnln(args...)
-}
-
-func (t *Handler) Warnf(format string, args ...interface{}) {
-	t.logger.Warnf(format, args...)
-}
-
-func (t *Handler) Fatal(args ...interface{}) {
-	t.logger.Fatal(args...)
-}
-
-func (t *Handler) Fatalln(args ...interface{}) {
-	t.logger.Fatalln(args...)
-}
-
-func (t *Handler) Fatalf(format string, args ...interface{}) {
-	t.logger.Fatalf(format, args...)
-}
-
-func (t *Handler) DebugErr(err error, args ...interface{}) {
-	t.logger.Debug(err.Error(), args)
-}
-
-func (t *Handler) Debug(args ...interface{}) {
-	t.logger.Debug(args...)
-}
-
-func (t *Handler) Debugln(args ...interface{}) {
-	t.logger.Debugln(args...)
-}
-
-func (t *Handler) Debugf(format string, args ...interface{}) {
-	t.logger.Fatalf(format, args...)
-}
-
-func (t *Handler) FatalErr(err error, msg string) {
-	t.logger.Fatal(msg, err.Error())
-}
-
-func (t *Handler) WarnErr(err error, msg string) {
-	t.logger.Warn(msg, err.Error())
 }
 
 func (t *Handler) Entry() *logrus.Entry {
