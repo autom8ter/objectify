@@ -11,7 +11,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"github.com/Masterminds/sprig"
 	"github.com/dustin/go-humanize"
@@ -23,18 +22,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/sync/errgroup"
 	"golang.org/x/text/language"
-	"google.golang.org/grpc"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/yaml.v2"
 	"hash/adler32"
 	"html/template"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -83,20 +78,9 @@ func Default() *Handler {
 	}
 }
 
-//Function is a generic function that returns an error
-type Function func() error
-
 func (t *Handler) ToMap(obj interface{}) map[string]interface{} {
 	struc := structs.New(obj)
 	return struc.Map()
-}
-
-func (t *Handler) ToAnnotations(obj interface{}) map[string]string {
-	rtrn := make(map[string]string)
-	for k, v := range t.ToMap(obj) {
-		rtrn[k] = string(t.MarshalJSON(v))
-	}
-	return rtrn
 }
 
 func (t *Handler) MarshalProto(msg proto.Message) []byte {
@@ -118,6 +102,8 @@ func (t *Handler) Attributes(obj interface{}) map[string]string {
 	m["type"] = reflect.TypeOf(obj).String()
 	m["value"] = reflect.ValueOf(obj).String()
 	m["kind"] = reflect.TypeOf(obj).Kind().String()
+	m["pkg"] = reflect.TypeOf(obj).PkgPath()
+	m["name"] = reflect.TypeOf(obj).Name()
 	return newm
 }
 
@@ -286,14 +272,6 @@ func (t *Handler) Adler32sum(input string) string {
 	return fmt.Sprintf("%d", hash)
 }
 
-func (t *Handler) Run(ctx context.Context, funcs ...Function) error {
-	g, ctx := errgroup.WithContext(ctx)
-	for _, f := range funcs {
-		g.Go(f)
-	}
-	return g.Wait()
-}
-
 func (t *Handler) Shell(cmd string) string {
 	e := exec.Command("/bin/sh", "-c", cmd)
 	e.Env = os.Environ()
@@ -324,7 +302,7 @@ func (t *Handler) RandomToken(length int) []byte {
 func (t *Handler) DotEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		t.Fatalln("Error loading .env file")
 	}
 }
 
@@ -351,12 +329,8 @@ func (t *Handler) MultiError(err error, list ...error) error {
 	return multierror.Append(err, list...)
 }
 
-func (t *Handler) ParsePFlags() {
-	pflag.Parse()
-}
-
-func (t *Handler) ParseFlags() {
-	flag.Parse()
+func (t *Handler) NewError(msg string) error {
+	return errors.New(msg)
 }
 
 func (t *Handler) GetLogger() *logrus.Logger {
@@ -409,14 +383,6 @@ func (t *Handler) MustDial(address string) net.Conn {
 	return conn
 }
 
-func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.ClientConn {
-	conn, err := grpc.Dial(address, opts...)
-	if err != nil {
-		panic(err.Error())
-	}
-	return conn
-}
-
 func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 	sdCh := make(chan os.Signal, 1)
 	defer close(sdCh)
@@ -439,8 +405,8 @@ func (t *Handler) PanicIfNil(obj interface{}) {
 	}
 }
 
-func (t *Handler) WrapErrf(err error, format, msg string) error {
-	return errors.Wrapf(err, format, msg)
+func (t *Handler) WrapErrf(err error, format string, args ...interface{}) error {
+	return errors.Wrapf(err, format, args...)
 }
 
 func (t *Handler) WrapErr(err error, msg string) error {
@@ -554,20 +520,17 @@ func (h *Handler) ModifyString(vs []string, f func(string) string) []string {
 	return vsm
 }
 
-func (h *Handler) Callbacks(obj interface{}, callbacks ...CallbackFunc) error {
-	for _, c := range callbacks {
-		if err := c(obj)(); err != nil {
-			return err
-		}
+func (h *Handler) SingleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
 	}
-	return nil
+	return a + b
 }
-
-func (h *Handler) Callback(obj interface{}, f CallbackFunc) error {
-	return f(obj)()
-}
-
-type CallbackFunc func(interface{}) func() error
 
 // TypeSafe returns true if the src is the type named in target.
 func (h *Handler) TypeSafe(target string, src interface{}) bool {
