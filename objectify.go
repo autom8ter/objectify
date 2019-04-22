@@ -40,7 +40,6 @@ import (
 	"sort"
 	"strings"
 	"syscall"
-	ttemplate "text/template"
 	"time"
 )
 
@@ -146,19 +145,27 @@ func (t *Handler) MarshalXML(obj interface{}) []byte {
 	return output
 }
 
-func (t *Handler) RenderHTML(text string, obj interface{}, w io.Writer) error {
-	tmpl, err := template.New("").Funcs(sprig.GenericFuncMap()).Parse(text)
-	if err != nil {
-		return err
-	}
+func (t *Handler) NewTemplate(name string) *template.Template {
+	return template.New(name).Funcs(t.FuncMap())
+}
+
+func (t *Handler) ParseFiles(tmpl *template.Template, names ...string) (*template.Template, error) {
+	return tmpl.ParseFiles(names...)
+}
+
+func (t *Handler) ParseText(tmpl *template.Template, text string) (*template.Template, error) {
+	return tmpl.Parse(text)
+}
+
+func (t *Handler) Parse(tmpl *template.Template, pattern string) (*template.Template, error) {
+	return tmpl.ParseGlob(pattern)
+}
+
+func (t *Handler) RenderHTML(tmpl *template.Template, obj interface{}, w io.Writer) error {
 	return tmpl.Execute(w, obj)
 }
 
-func (t *Handler) RenderTXT(text string, obj interface{}, w io.Writer) error {
-	tmpl, err := ttemplate.New("").Funcs(sprig.GenericFuncMap()).Parse(text)
-	if err != nil {
-		return err
-	}
+func (t *Handler) RenderTXT(tmpl *template.Template, obj interface{}, w io.Writer) error {
 	return tmpl.Execute(w, obj)
 }
 
@@ -482,4 +489,10 @@ func (h *Handler) RandomString(size int) string {
 	b := make([]byte, size)
 	rand.Read(b)
 	return base64.StdEncoding.EncodeToString(b)
+}
+
+func (t *Handler) FuncMap() template.FuncMap {
+	mapFuncs := sprig.FuncMap()
+
+	return mapFuncs
 }
