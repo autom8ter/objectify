@@ -5,21 +5,6 @@
 
 ## Usage
 
-#### type CallbackFunc
-
-```go
-type CallbackFunc func(interface{}) func() error
-```
-
-
-#### type Function
-
-```go
-type Function func() error
-```
-
-Function is a generic function that returns an error
-
 #### type Handler
 
 ```go
@@ -83,18 +68,6 @@ func (t *Handler) Base64EncodeRaw(str []byte) string
 func (t *Handler) Bash(cmd string) string
 ```
 
-#### func (*Handler) Callback
-
-```go
-func (h *Handler) Callback(obj interface{}, f CallbackFunc) error
-```
-
-#### func (*Handler) Callbacks
-
-```go
-func (h *Handler) Callbacks(obj interface{}, callbacks ...CallbackFunc) error
-```
-
 #### func (*Handler) ComparePasswordToHash
 
 ```go
@@ -114,30 +87,6 @@ Contains returns true if the target string t is in the slice.
 func (t *Handler) Context() context.Context
 ```
 
-#### func (*Handler) Debug
-
-```go
-func (t *Handler) Debug(args ...interface{})
-```
-
-#### func (*Handler) DebugErr
-
-```go
-func (t *Handler) DebugErr(err error, args ...interface{})
-```
-
-#### func (*Handler) Debugf
-
-```go
-func (t *Handler) Debugf(format string, args ...interface{})
-```
-
-#### func (*Handler) Debugln
-
-```go
-func (t *Handler) Debugln(args ...interface{})
-```
-
 #### func (*Handler) Dial
 
 ```go
@@ -154,30 +103,6 @@ func (t *Handler) DotEnv()
 
 ```go
 func (t *Handler) Entry() *logrus.Entry
-```
-
-#### func (*Handler) Fatal
-
-```go
-func (t *Handler) Fatal(args ...interface{})
-```
-
-#### func (*Handler) FatalErr
-
-```go
-func (t *Handler) FatalErr(err error, msg string)
-```
-
-#### func (*Handler) Fatalf
-
-```go
-func (t *Handler) Fatalf(format string, args ...interface{})
-```
-
-#### func (*Handler) Fatalln
-
-```go
-func (t *Handler) Fatalln(args ...interface{})
 ```
 
 #### func (*Handler) Filter
@@ -268,12 +193,6 @@ func (t *Handler) MultiError(err error, list ...error) error
 func (t *Handler) MustDial(address string) net.Conn
 ```
 
-#### func (*Handler) MustDialGRPC
-
-```go
-func (t *Handler) MustDialGRPC(address string, opts ...grpc.DialOption) *grpc.ClientConn
-```
-
 #### func (*Handler) MustGetEnv
 
 ```go
@@ -292,28 +211,22 @@ func (t *Handler) MustParseLang(msg string) language.Tag
 func (t *Handler) MustParseRegion(msg string) language.Region
 ```
 
+#### func (*Handler) NewError
+
+```go
+func (t *Handler) NewError(msg string) error
+```
+
 #### func (*Handler) PanicIfNil
 
 ```go
 func (t *Handler) PanicIfNil(obj interface{})
 ```
 
-#### func (*Handler) ParseFlags
-
-```go
-func (t *Handler) ParseFlags()
-```
-
 #### func (*Handler) ParseLang
 
 ```go
 func (t *Handler) ParseLang(msg string) (language.Tag, error)
-```
-
-#### func (*Handler) ParsePFlags
-
-```go
-func (t *Handler) ParsePFlags()
 ```
 
 #### func (*Handler) ParseRegion
@@ -332,6 +245,12 @@ func (t *Handler) Prompt(question string) string
 
 ```go
 func (t *Handler) Python3(cmd string) string
+```
+
+#### func (*Handler) RandomString
+
+```go
+func (h *Handler) RandomString(size int) string
 ```
 
 #### func (*Handler) RandomToken
@@ -412,18 +331,6 @@ func (t *Handler) ReplaceEntry(entry *logrus.Entry)
 func (t *Handler) Request(req *http.Request) (*http.Response, error)
 ```
 
-#### func (*Handler) RootCmd
-
-```go
-func (t *Handler) RootCmd(name, description string, fn func() error) *cobra.Command
-```
-
-#### func (*Handler) Run
-
-```go
-func (t *Handler) Run(ctx context.Context, funcs ...Function) error
-```
-
 #### func (*Handler) Sha1sum
 
 ```go
@@ -442,16 +349,16 @@ func (t *Handler) Sha256sum(input string) string
 func (t *Handler) Shell(cmd string) string
 ```
 
+#### func (*Handler) SingleJoiningSlash
+
+```go
+func (h *Handler) SingleJoiningSlash(a, b string) string
+```
+
 #### func (*Handler) Sort
 
 ```go
 func (t *Handler) Sort(list []string) []string
-```
-
-#### func (*Handler) ToAnnotations
-
-```go
-func (t *Handler) ToAnnotations(obj interface{}) map[string]string
 ```
 
 #### func (*Handler) ToContext
@@ -491,30 +398,6 @@ func (t *Handler) UnmarshalFromConfig(file string, obj interface{}) error
 func (t *Handler) Validate(data interface{}) error
 ```
 
-#### func (*Handler) Warn
-
-```go
-func (t *Handler) Warn(args ...interface{})
-```
-
-#### func (*Handler) WarnErr
-
-```go
-func (t *Handler) WarnErr(err error, msg string)
-```
-
-#### func (*Handler) Warnf
-
-```go
-func (t *Handler) Warnf(format string, args ...interface{})
-```
-
-#### func (*Handler) Warnln
-
-```go
-func (t *Handler) Warnln(args ...interface{})
-```
-
 #### func (*Handler) WatchForShutdown
 
 ```go
@@ -530,7 +413,7 @@ func (t *Handler) WrapErr(err error, msg string) error
 #### func (*Handler) WrapErrf
 
 ```go
-func (t *Handler) WrapErrf(err error, format, msg string) error
+func (t *Handler) WrapErrf(err error, format string, args ...interface{}) error
 ```
 
 #### type Option

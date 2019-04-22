@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/csv"
+	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
@@ -473,4 +474,12 @@ func (h *Handler) TypeSafe(target string, src interface{}) bool {
 
 func typeOf(src interface{}) string {
 	return fmt.Sprintf("%T", src)
+}
+
+func (h *Handler) RandomString(size int) string {
+	gob.Register(map[string]interface{}{})
+	// Generate random state
+	b := make([]byte, size)
+	rand.Read(b)
+	return base64.StdEncoding.EncodeToString(b)
 }
