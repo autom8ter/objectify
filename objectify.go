@@ -16,6 +16,7 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/structs"
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
@@ -50,8 +51,16 @@ func init() {
 
 type Option func(h *logrus.Logger) *logrus.Logger
 
-var validate *validator.Validate
-var logger *logrus.Logger
+var (
+	validate        *validator.Validate
+	logger          *logrus.Logger
+	pbJSONMarshaler = &jsonpb.Marshaler{
+		Indent: "  ",
+	}
+	pbJSONUnmarshaler = &jsonpb.Unmarshaler{
+		AllowUnknownFields: false,
+	}
+)
 
 //Handler is an empty struct used to carry useful utility functions
 type Handler struct {
@@ -85,6 +94,27 @@ func (t *Handler) ToMap(obj interface{}) map[string]interface{} {
 func (t *Handler) MarshalProto(msg proto.Message) []byte {
 	output, _ := proto.Marshal(msg)
 	return output
+}
+
+func (t *Handler) UnmarshalProto(bits []byte, msg proto.Message) error {
+	return proto.Unmarshal(bits, msg)
+}
+
+func (t *Handler) MarshalJSONPB(msg proto.Message) []byte {
+	str, _ := pbJSONMarshaler.MarshalToString(msg)
+	return []byte(str)
+}
+
+func (t *Handler) UnmarshalJSON(bits []byte, msg proto.Message) error {
+	return json.Unmarshal(bits, msg)
+}
+
+func (t *Handler) UnmarshalXML(bits []byte, msg proto.Message) error {
+	return xml.Unmarshal(bits, msg)
+}
+
+func (t *Handler) UnmarshalYAML(bits []byte, msg proto.Message) error {
+	return yaml.Unmarshal(bits, msg)
 }
 
 func (t *Handler) MarshalJSON(v interface{}) []byte {
@@ -462,21 +492,13 @@ func (h *Handler) ModifyString(vs []string, f func(string) string) []string {
 	return vsm
 }
 
-func (h *Handler) SingleJoiningSlash(a, b string) string {
-	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasPrefix(b, "/")
-	switch {
-	case aslash && bslash:
-		return a + b[1:]
-	case !aslash && !bslash:
-		return a + "/" + b
-	}
-	return a + b
-}
-
 // TypeSafe returns true if the src is the type named in target.
 func (h *Handler) TypeSafe(target string, src interface{}) bool {
 	return target == typeOf(src)
+}
+
+func (h *Handler) DeepEqual(this interface{}, that interface{}) bool {
+	return reflect.DeepEqual(this, that)
 }
 
 func typeOf(src interface{}) string {

@@ -87,6 +87,12 @@ Contains returns true if the target string t is in the slice.
 func (t *Handler) Context() context.Context
 ```
 
+#### func (*Handler) DeepEqual
+
+```go
+func (h *Handler) DeepEqual(this interface{}, that interface{}) bool
+```
+
 #### func (*Handler) Dial
 
 ```go
@@ -117,6 +123,12 @@ predicate f.
 
 ```go
 func (t *Handler) FromContext(ctx context.Context, key string) interface{}
+```
+
+#### func (*Handler) FuncMap
+
+```go
+func (t *Handler) FuncMap() template.FuncMap
 ```
 
 #### func (*Handler) GetEnv
@@ -155,6 +167,12 @@ found.
 
 ```go
 func (t *Handler) MarshalJSON(v interface{}) []byte
+```
+
+#### func (*Handler) MarshalJSONPB
+
+```go
+func (t *Handler) MarshalJSONPB(msg proto.Message) []byte
 ```
 
 #### func (*Handler) MarshalProto
@@ -217,10 +235,28 @@ func (t *Handler) MustParseRegion(msg string) language.Region
 func (t *Handler) NewError(msg string) error
 ```
 
+#### func (*Handler) NewTemplate
+
+```go
+func (t *Handler) NewTemplate(name string) *template.Template
+```
+
 #### func (*Handler) PanicIfNil
 
 ```go
 func (t *Handler) PanicIfNil(obj interface{})
+```
+
+#### func (*Handler) Parse
+
+```go
+func (t *Handler) Parse(tmpl *template.Template, pattern string) (*template.Template, error)
+```
+
+#### func (*Handler) ParseFiles
+
+```go
+func (t *Handler) ParseFiles(tmpl *template.Template, names ...string) (*template.Template, error)
 ```
 
 #### func (*Handler) ParseLang
@@ -233,6 +269,12 @@ func (t *Handler) ParseLang(msg string) (language.Tag, error)
 
 ```go
 func (t *Handler) ParseRegion(msg string) (language.Region, error)
+```
+
+#### func (*Handler) ParseText
+
+```go
+func (t *Handler) ParseText(tmpl *template.Template, text string) (*template.Template, error)
 ```
 
 #### func (*Handler) Prompt
@@ -304,13 +346,13 @@ func (t *Handler) RegexSplit(regex string, s string, n int) []string
 #### func (*Handler) RenderHTML
 
 ```go
-func (t *Handler) RenderHTML(text string, obj interface{}, w io.Writer) error
+func (t *Handler) RenderHTML(tmpl *template.Template, obj interface{}, w io.Writer) error
 ```
 
 #### func (*Handler) RenderTXT
 
 ```go
-func (t *Handler) RenderTXT(text string, obj interface{}, w io.Writer) error
+func (t *Handler) RenderTXT(tmpl *template.Template, obj interface{}, w io.Writer) error
 ```
 
 #### func (*Handler) Replace
@@ -349,12 +391,6 @@ func (t *Handler) Sha256sum(input string) string
 func (t *Handler) Shell(cmd string) string
 ```
 
-#### func (*Handler) SingleJoiningSlash
-
-```go
-func (h *Handler) SingleJoiningSlash(a, b string) string
-```
-
 #### func (*Handler) Sort
 
 ```go
@@ -390,6 +426,30 @@ func (t *Handler) UUID() string
 
 ```go
 func (t *Handler) UnmarshalFromConfig(file string, obj interface{}) error
+```
+
+#### func (*Handler) UnmarshalJSON
+
+```go
+func (t *Handler) UnmarshalJSON(bits []byte, msg proto.Message) error
+```
+
+#### func (*Handler) UnmarshalProto
+
+```go
+func (t *Handler) UnmarshalProto(bits []byte, msg proto.Message) error
+```
+
+#### func (*Handler) UnmarshalXML
+
+```go
+func (t *Handler) UnmarshalXML(bits []byte, msg proto.Message) error
+```
+
+#### func (*Handler) UnmarshalYAML
+
+```go
+func (t *Handler) UnmarshalYAML(bits []byte, msg proto.Message) error
 ```
 
 #### func (*Handler) Validate
