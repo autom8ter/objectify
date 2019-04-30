@@ -20,12 +20,6 @@ Handler is an empty struct used to carry useful utility functions
 func Default() *Handler
 ```
 
-#### func  New
-
-```go
-func New(opts ...Option) *Handler
-```
-
 #### func (*Handler) Adler32sum
 
 ```go
@@ -87,6 +81,12 @@ Contains returns true if the target string t is in the slice.
 func (t *Handler) Context() context.Context
 ```
 
+#### func (*Handler) Debugf
+
+```go
+func (t *Handler) Debugf(format string, args ...interface{})
+```
+
 #### func (*Handler) DeepEqual
 
 ```go
@@ -105,10 +105,10 @@ func (t *Handler) Dial(address string) (net.Conn, error)
 func (t *Handler) DotEnv()
 ```
 
-#### func (*Handler) Entry
+#### func (*Handler) Fatalf
 
 ```go
-func (t *Handler) Entry() *logrus.Entry
+func (t *Handler) Fatalf(format string, args ...interface{})
 ```
 
 #### func (*Handler) Filter
@@ -123,12 +123,6 @@ predicate f.
 
 ```go
 func (t *Handler) FromContext(ctx context.Context, key string) interface{}
-```
-
-#### func (*Handler) FuncMap
-
-```go
-func (t *Handler) FuncMap() template.FuncMap
 ```
 
 #### func (*Handler) GetEnv
@@ -235,12 +229,6 @@ func (t *Handler) MustParseRegion(msg string) language.Region
 func (t *Handler) NewError(msg string) error
 ```
 
-#### func (*Handler) NewTemplate
-
-```go
-func (t *Handler) NewTemplate(name string) *template.Template
-```
-
 #### func (*Handler) PanicIfNil
 
 ```go
@@ -275,6 +263,12 @@ func (t *Handler) ParseRegion(msg string) (language.Region, error)
 
 ```go
 func (t *Handler) ParseText(tmpl *template.Template, text string) (*template.Template, error)
+```
+
+#### func (*Handler) Printf
+
+```go
+func (t *Handler) Printf(format string, args ...interface{})
 ```
 
 #### func (*Handler) Prompt
@@ -359,12 +353,6 @@ func (t *Handler) RenderTXT(tmpl *template.Template, obj interface{}, w io.Write
 
 ```go
 func (t *Handler) Replace(content string, replacements ...string) string
-```
-
-#### func (*Handler) ReplaceEntry
-
-```go
-func (t *Handler) ReplaceEntry(entry *logrus.Entry)
 ```
 
 #### func (*Handler) Request
@@ -458,6 +446,12 @@ func (t *Handler) UnmarshalYAML(bits []byte, msg proto.Message) error
 func (t *Handler) Validate(data interface{}) error
 ```
 
+#### func (*Handler) Warnf
+
+```go
+func (t *Handler) Warnf(format string, args ...interface{})
+```
+
 #### func (*Handler) WatchForShutdown
 
 ```go
@@ -474,83 +468,4 @@ func (t *Handler) WrapErr(err error, msg string) error
 
 ```go
 func (t *Handler) WrapErrf(err error, format string, args ...interface{}) error
-```
-
-#### type Option
-
-```go
-type Option func(h *logrus.Logger) *logrus.Logger
-```
-
-
-#### func  Noop
-
-```go
-func Noop() Option
-```
-
-#### func  WithContext
-
-```go
-func WithContext(ctx context.Context) Option
-```
-
-#### func  WithDebugLevel
-
-```go
-func WithDebugLevel() Option
-```
-
-#### func  WithError
-
-```go
-func WithError(err error) Option
-```
-
-#### func  WithErrorLevel
-
-```go
-func WithErrorLevel() Option
-```
-
-#### func  WithFatalLevel
-
-```go
-func WithFatalLevel() Option
-```
-
-#### func  WithInfoLevel
-
-```go
-func WithInfoLevel() Option
-```
-
-#### func  WithJSONFormatter
-
-```go
-func WithJSONFormatter() Option
-```
-
-#### func  WithLevelFromEnv
-
-```go
-func WithLevelFromEnv(key string) Option
-```
-
-#### func  WithTextFormatter
-
-```go
-func WithTextFormatter(color bool) Option
-```
-
-#### func  WithWarnLevel
-
-```go
-func WithWarnLevel() Option
-```
-
-#### func  WithWriter
-
-```go
-func WithWriter(w io.Writer) Option
 ```

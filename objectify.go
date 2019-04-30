@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Masterminds/sprig"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/structs"
 	"github.com/golang/protobuf/jsonpb"
@@ -46,10 +45,7 @@ import (
 
 func init() {
 	validate = validator.New()
-	logger = logrus.New()
 }
-
-type Option func(h *logrus.Logger) *logrus.Logger
 
 var (
 	validate        *validator.Validate
@@ -64,26 +60,11 @@ var (
 
 //Handler is an empty struct used to carry useful utility functions
 type Handler struct {
-	logger *logrus.Entry
 }
 
-func New(opts ...Option) *Handler {
-	for _, o := range opts {
-		logger = o(logger)
-	}
-	return &Handler{
-		logger: logrus.NewEntry(logger),
-	}
-}
 
 func Default() *Handler {
-	logger.Formatter = &logrus.JSONFormatter{PrettyPrint: true}
-	logger.Out = os.Stdout
-	logger.Level = logrus.DebugLevel
-	e := logrus.NewEntry(logger)
-	return &Handler{
-		logger: e,
-	}
+	return &Handler{}
 }
 
 func (t *Handler) ToMap(obj interface{}) map[string]interface{} {
@@ -173,10 +154,6 @@ func (t *Handler) MustGetEnv(envKey string) string {
 func (t *Handler) MarshalXML(obj interface{}) []byte {
 	output, _ := xml.Marshal(obj)
 	return output
-}
-
-func (t *Handler) NewTemplate(name string) *template.Template {
-	return template.New(name).Funcs(t.FuncMap())
 }
 
 func (t *Handler) ParseFiles(tmpl *template.Template, names ...string) (*template.Template, error) {
@@ -336,7 +313,7 @@ func (t *Handler) RandomToken(length int) []byte {
 func (t *Handler) DotEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		t.Entry().Debugln("Error loading .env file")
+		logrus.Debugln("Error loading .env file")
 	}
 }
 
@@ -409,10 +386,10 @@ func (e *Handler) WatchForShutdown(ctx context.Context, fn func()) error {
 	signal.Notify(sdCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case <-sdCh:
-		e.Entry().Debugln("signal received shutting down", e.HumanizeTime(time.Now()))
+		logrus.Debugln("signal received shutting down", e.HumanizeTime(time.Now()))
 		fn()
 	case <-ctx.Done():
-		e.Entry().Debugln("context done")
+		logrus.Debugln("context done")
 		// no-op
 	}
 	return nil
@@ -431,14 +408,6 @@ func (t *Handler) WrapErrf(err error, format string, args ...interface{}) error 
 
 func (t *Handler) WrapErr(err error, msg string) error {
 	return errors.Wrap(err, msg)
-}
-
-func (t *Handler) Entry() *logrus.Entry {
-	return t.logger
-}
-
-func (t *Handler) ReplaceEntry(entry *logrus.Entry) {
-	t.logger = entry
 }
 
 func (t *Handler) Context() context.Context {
@@ -513,8 +482,18 @@ func (h *Handler) RandomString(size int) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-func (t *Handler) FuncMap() template.FuncMap {
-	mapFuncs := sprig.FuncMap()
+func (t *Handler) Debugf(format string, args ...interface{}) {
+	logrus.Debugf(format, args...)
+}
 
-	return mapFuncs
+func (t *Handler) Fatalf(format string, args ...interface{}) {
+	logrus.Fatalf(format, args...)
+}
+
+func (t *Handler) Warnf(format string, args ...interface{}) {
+	logrus.Warnf(format, args...)
+}
+
+func (t *Handler) Printf(format string, args ...interface{}) {
+	logrus.Warnf(format, args...)
 }
