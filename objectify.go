@@ -62,7 +62,6 @@ var (
 type Handler struct {
 }
 
-
 func Default() *Handler {
 	return &Handler{}
 }
@@ -496,4 +495,16 @@ func (t *Handler) Warnf(format string, args ...interface{}) {
 
 func (t *Handler) Printf(format string, args ...interface{}) {
 	logrus.Warnf(format, args...)
+}
+
+func (t *Handler) EnvPrompt(key string) (string, error) {
+	val := os.Getenv(key)
+	if val != "" {
+		return val, nil
+	}
+	val = t.Prompt(fmt.Sprintf("set env: %s", key))
+	if val != "" {
+		return val, nil
+	}
+	return "", errors.New("failed to retrieve value from env and prompt")
 }
