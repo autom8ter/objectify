@@ -81,6 +81,12 @@ Contains returns true if the target string t is in the slice.
 func (t *Handler) Context() context.Context
 ```
 
+#### func (*Handler) ConvertDurationPB
+
+```go
+func (t *Handler) ConvertDurationPB(d *duration.Duration) (time.Duration, error)
+```
+
 #### func (*Handler) Debugf
 
 ```go
@@ -103,6 +109,12 @@ func (t *Handler) Dial(address string) (net.Conn, error)
 
 ```go
 func (t *Handler) DotEnv()
+```
+
+#### func (*Handler) EnvPrompt
+
+```go
+func (t *Handler) EnvPrompt(key string) (string, error)
 ```
 
 #### func (*Handler) Fatalf
@@ -157,6 +169,12 @@ func (h *Handler) Index(vs []string, t string) int
 Index returns the first index of the target string t, or -1 if no match is
 found.
 
+#### func (*Handler) MarshalAnyPB
+
+```go
+func (t *Handler) MarshalAnyPB(msg proto.Message) (*any.Any, error)
+```
+
 #### func (*Handler) MarshalJSON
 
 ```go
@@ -185,6 +203,18 @@ func (t *Handler) MarshalXML(obj interface{}) []byte
 
 ```go
 func (t *Handler) MarshalYAML(obj interface{}) []byte
+```
+
+#### func (*Handler) MatchesPB
+
+```go
+func (t *Handler) MatchesPB(d *any.Any, msg proto.Message) bool
+```
+
+#### func (*Handler) MessageNamePB
+
+```go
+func (t *Handler) MessageNamePB(d *any.Any) (string, error)
 ```
 
 #### func (*Handler) ModifyString
@@ -385,6 +415,30 @@ func (t *Handler) Shell(cmd string) string
 func (t *Handler) Sort(list []string) []string
 ```
 
+#### func (*Handler) TimestampNow
+
+```go
+func (t *Handler) TimestampNow() *timestamp.Timestamp
+```
+
+#### func (*Handler) TimestampPB
+
+```go
+func (t *Handler) TimestampPB(stamp *timestamp.Timestamp) (time.Time, error)
+```
+
+#### func (*Handler) TimestampProto
+
+```go
+func (h *Handler) TimestampProto(t time.Time) (*timestamp.Timestamp, error)
+```
+
+#### func (*Handler) TimestampString
+
+```go
+func (t *Handler) TimestampString(stamp *timestamp.Timestamp) string
+```
+
 #### func (*Handler) ToContext
 
 ```go
@@ -408,6 +462,12 @@ TypeSafe returns true if the src is the type named in target.
 
 ```go
 func (t *Handler) UUID() string
+```
+
+#### func (*Handler) UnarshalAnyPB
+
+```go
+func (t *Handler) UnarshalAnyPB(a *any.Any, msg proto.Message) error
 ```
 
 #### func (*Handler) UnmarshalFromConfig

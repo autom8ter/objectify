@@ -17,8 +17,13 @@ import (
 	"github.com/fatih/structs"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
+
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -507,4 +512,41 @@ func (t *Handler) EnvPrompt(key string) (string, error) {
 		return val, nil
 	}
 	return "", errors.New("failed to retrieve value from env and prompt")
+}
+
+func (t *Handler) ConvertDurationPB(d *duration.Duration) (time.Duration, error){
+	return ptypes.Duration(d)
+}
+
+func (t *Handler) MessageNamePB(d *any.Any) (string, error){
+	return ptypes.AnyMessageName(d)
+}
+
+func (t *Handler) MatchesPB(d *any.Any, msg proto.Message) (bool){
+	return ptypes.Is(d, msg)
+}
+
+func (t *Handler) MarshalAnyPB(msg proto.Message) (*any.Any, error){
+	return ptypes.MarshalAny(msg)
+}
+
+func (t *Handler) UnarshalAnyPB(a *any.Any, msg proto.Message) (error){
+	return ptypes.UnmarshalAny(a, msg)
+}
+
+func (t *Handler) TimestampNow() (*timestamp.Timestamp){
+	return ptypes.TimestampNow()
+}
+
+func (h *Handler) TimestampProto(t time.Time) (*timestamp.Timestamp, error){
+	return ptypes.TimestampProto(t)
+}
+
+
+func (t *Handler) TimestampPB(stamp *timestamp.Timestamp) (time.Time, error){
+	return ptypes.Timestamp(stamp)
+}
+
+func (t *Handler) TimestampString(stamp *timestamp.Timestamp) (string){
+	return ptypes.TimestampString(stamp)
 }
